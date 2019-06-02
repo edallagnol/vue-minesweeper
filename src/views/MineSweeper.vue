@@ -10,7 +10,7 @@ import Field from '@/components/Field.vue';
 
 @Component({
   components: {
-    Field
+    Field,
   },
 })
 export default class MineSweeper extends Vue {
