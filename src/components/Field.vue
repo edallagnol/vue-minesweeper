@@ -36,7 +36,7 @@ export default class Field extends Vue {
   private created() {
     for (let i = 0; i !== this.size; i++) {
       this.field.push([]);
-      for (let j = 0; j != this.size; j++) {
+      for (let j = 0; j !== this.size; j++) {
         this.field[i].push(new Cell(i, j));
       }
     }
