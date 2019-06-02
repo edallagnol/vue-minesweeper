@@ -1,4 +1,6 @@
 export class Cell {
+    constructor(public x: number, public y: number) {};
+
     public mine = false;
     public known = false;
     public flagged = false;

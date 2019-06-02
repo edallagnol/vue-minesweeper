@@ -1,6 +1,6 @@
 <template>
   <div>
-    <Field v-bind:size="10"/>
+    <Field v-bind:size="20" v-bind:mines="60"/>
   </div>
 </template>
 
