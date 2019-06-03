@@ -1,5 +1,6 @@
 <template>
-  <table>
+  <!-- preventDefault right-click on table borders -->
+  <table v-on:click.right.prevent>
     <tr v-for="(row, rowIdx) in field" v-bind:key="rowIdx">
         <td v-for="(cell, columnIdx) in row" v-bind:key="columnIdx"
           v-bind:class="{
@@ -19,15 +20,12 @@
 
 <script lang="ts">
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
+import MathUtils from '@/utils/math-utils';
 import { Cell } from './cell';
 
 
 @Component
 export default class Field extends Vue {
-  private static getRandomInt(max: number) {
-    return Math.floor(Math.random() * max);
-  }
-
   @Prop({ default: 10 }) private size!: number;
   @Prop({ default: 10 }) private mines!: number;
   private field: Cell[][] = [];
@@ -35,6 +33,10 @@ export default class Field extends Vue {
   private flagCount = 0;
 
   private created() {
+    this.createEmptyCells();
+  }
+
+  private createEmptyCells() {
     for (let x = 0; x !== this.size; x++) {
       this.field.push([]);
       for (let y = 0; y !== this.size; y++) {
@@ -51,17 +53,21 @@ export default class Field extends Vue {
     for (let i = this.mines; i--; ) {
       let cell: Cell;
       do {
-        const randomX = Field.getRandomInt(this.size);
-        const randomY = Field.getRandomInt(this.size);
-        cell = this.field[randomX][randomY];
+        cell = this.getRandomCell();
       } while (cell === firstCell || cell.mine);
 
       cell.mine = true;
-      this.addMineNeighbor(cell);
+      this.updateMineNeighborhood(cell);
     }
   }
 
-  private addMineNeighbor(cell: Cell) {
+  private getRandomCell() {
+    const randomX = MathUtils.getRandomInt(this.size);
+    const randomY = MathUtils.getRandomInt(this.size);
+    return this.field[randomX][randomY];
+  }
+
+  private updateMineNeighborhood(cell: Cell) {
     this.neighborhood(cell).forEach((neighbor) => neighbor.neighborHood++);
   }
 
@@ -69,7 +75,7 @@ export default class Field extends Vue {
     this.initMines(cell);
 
     if (cell.known) {
-      if (this.neighborhoodFlagCountMatch(cell)) {
+      if (this.neighborhoodFlagCountMatches(cell)) {
         this.neighborhood(cell)
           .filter((neighbor) => !neighbor.known && !neighbor.flagged)
           .forEach((neighbor) => this.setCellKnown(neighbor));
@@ -86,9 +92,9 @@ export default class Field extends Vue {
     }
   }
 
-  private neighborhoodFlagCountMatch(cell: Cell) {
-    let flagCount = 0;
-    this.neighborhood(cell).forEach((neighbor) => flagCount += +neighbor.flagged);
+  private neighborhoodFlagCountMatches(cell: Cell) {
+    const flagCount = this.neighborhood(cell)
+      .reduce((count, neighbor) => count + Number(neighbor.flagged), 0);
     return flagCount === cell.neighborHood;
   }
 
@@ -96,32 +102,32 @@ export default class Field extends Vue {
     if (!cell.known) {
       cell.flagged = !cell.flagged;
       this.flagCount += cell.flagged ? 1 : -1;
-      this.emitRemainingBombs(this.remainingBombs());
+      this.emitRemainingBombs();
     }
   }
 
   private neighborhood(cell: Cell): Cell[] {
     const neighborhood = [];
 
-    for (let i = cell.x - 1; i <= cell.x + 1; i++) {
-      for (let j = cell.y - 1; j <= cell.y + 1; j++) {
-          if (i < 0 || i >= this.size || j < 0 || j >= this.size) { continue; }
-          if (i === cell.x && j === cell.y) { continue; }
+    const minX = Math.max(cell.x - 1, 0);
+    const minY = Math.max(cell.y - 1, 0);
+    const maxX = Math.min(cell.x + 1, this.size - 1);
+    const maxY = Math.min(cell.y + 1, this.size - 1);
 
-          neighborhood.push(this.field[i][j]);
+    for (let x = minX; x <= maxX; x++) {
+      for (let y = minY; y <= maxY; y++) {
+          if (x === cell.x && y === cell.y) { continue; }
+
+          neighborhood.push(this.field[x][y]);
       }
     }
 
     return neighborhood;
   }
 
-  private remainingBombs() {
-    return this.mines - this.flagCount;
-  }
-
   @Emit('update:remainingBombs')
-  private emitRemainingBombs(remainingBombs: number) {
-    return this.remainingBombs();
+  private emitRemainingBombs() {
+    return this.mines - this.flagCount;
   }
 
 }
