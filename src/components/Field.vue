@@ -9,7 +9,7 @@
           }"
           v-on:click="setCellKnown(cell)"
           v-on:click.right.prevent="setCellFlagged(cell)">
-          <span v-if="cell.known">
+          <span v-if="cell.known && cell.neighborHood">
             {{ cell.neighborHood }}
           </span>
         </td>
@@ -18,7 +18,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-property-decorator';
+import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import { Cell } from './cell';
 
 
@@ -32,12 +32,13 @@ export default class Field extends Vue {
   @Prop({ default: 10 }) private mines!: number;
   private field: Cell[][] = [];
   private initialized = false;
+  private flagCount = 0;
 
   private created() {
-    for (let i = 0; i !== this.size; i++) {
+    for (let x = 0; x !== this.size; x++) {
       this.field.push([]);
-      for (let j = 0; j !== this.size; j++) {
-        this.field[i].push(new Cell(i, j));
+      for (let y = 0; y !== this.size; y++) {
+        this.field[x].push(new Cell(x, y));
       }
     }
   }
@@ -94,6 +95,8 @@ export default class Field extends Vue {
   private setCellFlagged(cell: Cell) {
     if (!cell.known) {
       cell.flagged = !cell.flagged;
+      this.flagCount += cell.flagged ? 1 : -1;
+      this.emitRemainingBombs(this.remainingBombs());
     }
   }
 
@@ -112,28 +115,41 @@ export default class Field extends Vue {
     return neighborhood;
   }
 
+  private remainingBombs() {
+    return this.mines - this.flagCount;
+  }
+
+  @Emit('update:remainingBombs')
+  private emitRemainingBombs(remainingBombs: number) {
+    return this.remainingBombs();
+  }
+
 }
 </script>
 
 <style scoped>
+table {
+  border-collapse: separate;
+  border-spacing: 1px;
+}
+
 td {
   width: 18px;
   height: 18px;
-  margin: 1px;
   cursor: default;
   user-select: none;
 }
 
 .unknown {
-  background-color: blue
+  background-color: grey;
 }
 
 .exploded {
-  background-color: red
+  background-color: red;
 }
 
 .flagged {
-  background-color: orange
+  background-color: orange;
 }
 
 </style>
