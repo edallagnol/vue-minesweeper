@@ -8,6 +8,7 @@
       <Field v-bind:size="20"
       v-bind:mines="60"
       v-on:update:remainingBombs="remainingBombs = $event"
+      v-on:finish="finish($event)"
       class="field"/>
     </div>
   </div>
@@ -36,6 +37,10 @@ export default class MineSweeper extends Vue {
 
   private start() {
     this.$refs.timer.start();
+  }
+
+  private finish(won: boolean) {
+    this.$refs.timer.stop();
   }
 
 }

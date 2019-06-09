@@ -6,7 +6,7 @@
           v-bind:class="{
             unknown: !cell.known,
             exploded: cell.showMine(),
-            flagged: cell.flagged
+            flagged: cell.showFlagged()
           }"
           v-on:click="setCellKnown(cell)"
           v-on:click.right.prevent="setCellFlagged(cell)">
@@ -22,6 +22,7 @@
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import MathUtils from '@/utils/math-utils';
 import { Cell } from './cell';
+import { format } from 'date-fns';
 
 
 @Component
@@ -30,6 +31,7 @@ export default class Field extends Vue {
   @Prop({ default: 10 }) private mines!: number;
   private field: Cell[][] = [];
   private initialized = false;
+  private finished = false;
   private flagCount = 0;
 
   private created() {
@@ -73,6 +75,9 @@ export default class Field extends Vue {
 
   private setCellKnown(cell: Cell) {
     this.initMines(cell);
+    if (this.finished) {
+      return;
+    }
 
     if (cell.known) {
       if (this.neighborhoodFlagCountMatches(cell)) {
@@ -85,11 +90,46 @@ export default class Field extends Vue {
 
     cell.known = true;
 
+    if (this.checkFinished(cell)) {
+      return;
+    }
+
     if (!cell.mine && cell.neighborHood === 0) {
       this.neighborhood(cell)
         .filter((neighbor) => !neighbor.known)
         .forEach((neighbor) => this.setCellKnown(neighbor));
     }
+  }
+
+  private checkFinished(cellClicked: Cell): boolean {
+    if (cellClicked.mine) {
+      this.finish(false);
+      return true;
+    }
+
+    if (this.allNonBombsKnown()) {
+      this.finish(true);
+      return true;
+    }
+
+    return false;
+  }
+
+  private allNonBombsKnown() {
+    for (const row of this.field) {
+      for (const cell of row) {
+        if (!cell.mine && !cell.known) {
+          return false;
+        }
+      }
+    }
+    return true;
+  }
+
+  @Emit('finish')
+  private finish(won: boolean) {
+    this.finished = true;
+    return won;
   }
 
   private neighborhoodFlagCountMatches(cell: Cell) {
@@ -99,6 +139,10 @@ export default class Field extends Vue {
   }
 
   private setCellFlagged(cell: Cell) {
+    if (this.finished) {
+      return;
+    }
+
     if (!cell.known) {
       cell.flagged = !cell.flagged;
       this.flagCount += cell.flagged ? 1 : -1;

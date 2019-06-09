@@ -9,4 +9,8 @@ export class Cell {
     public showMine() {
         return this.mine && this.known;
     }
+
+    public showFlagged() {
+        return this.flagged && !this.known;
+    }
 }
