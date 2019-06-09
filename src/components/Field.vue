@@ -22,7 +22,6 @@
 import { Component, Prop, Vue, Emit } from 'vue-property-decorator';
 import MathUtils from '@/utils/math-utils';
 import { Cell } from './cell';
-import { format } from 'date-fns';
 
 
 @Component
