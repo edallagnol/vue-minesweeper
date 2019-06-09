@@ -13,4 +13,8 @@ export class Cell {
     public showFlagged() {
         return this.flagged && !this.known;
     }
+
+    public showNeighborHood() {
+        return this.known && this.neighborHood && !this.mine;
+    }
 }

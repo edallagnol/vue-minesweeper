@@ -10,7 +10,7 @@
           }"
           v-on:click="setCellKnown(cell)"
           v-on:click.right.prevent="setCellFlagged(cell)">
-          <span v-if="cell.known && cell.neighborHood">
+          <span v-if="cell.showNeighborHood()">
             {{ cell.neighborHood }}
           </span>
         </td>
@@ -183,10 +183,13 @@ table {
 }
 
 td {
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   cursor: default;
   user-select: none;
+  text-align: center !important;
+  font-size: 87%;
+  vertical-align: middle
 }
 
 .unknown {

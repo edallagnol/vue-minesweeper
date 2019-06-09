@@ -10,11 +10,11 @@ import { differenceInSeconds } from 'date-fns';
 
 @Component
 export default class Timer extends Vue {
-    private time: number = 0;
+    private time = 0;
     private interval?: number;
 
     public start() {
-        stop();
+        this.stop();
 
         const startTime = new Date();
 
@@ -29,6 +29,16 @@ export default class Timer extends Vue {
             clearInterval(this.interval);
             this.interval  = undefined;
         }
+    }
+
+
+    public reset() {
+        this.stop();
+        this.time = 0;
+    }
+
+    private beforeDestroy() {
+        stop();
     }
 }
 </script>
