@@ -6,7 +6,11 @@
       </h3>
       <h3 class="column subtitle">Remaining {{remainingBombs}}</h3>
     </div>
-    <div>
+    <div class="game-container">
+      <div v-if="result" class="finish-message">
+        <span v-if="result === 'won'">You Won :)</span>
+        <span v-if="result === 'lost'">You Lost =/</span>
+      </div>
       <Field v-bind:size="20"
       v-bind:mines="60"
       v-bind:key="key"
@@ -40,6 +44,7 @@ export default class MineSweeper extends Vue {
   };
   private remainingBombs = 60;
   private key = 1;
+  private result: null|'won'|'lost' = null;
 
   private mounted() {
     this.start();
@@ -50,12 +55,14 @@ export default class MineSweeper extends Vue {
   }
 
   private restart() {
+    this.result = null;
     this.$refs.timer.reset();
     this.key++;
     this.start();
   }
 
   private finish(won: boolean) {
+    this.result = won ? 'won' : 'lost';
     this.$refs.timer.stop();
   }
 
@@ -71,7 +78,24 @@ export default class MineSweeper extends Vue {
   text-align: center;
 }
 
-.field {
-  margin: 10px auto 10px;
+.game-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.finish-message {
+  position: absolute;
+  width: 100%;
+  height: 100px;
+  z-index: 10;
+  text-align: center;
+  background-color: rgba(66, 134, 244, .8);
+  font-weight: bold;
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 </style>

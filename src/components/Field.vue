@@ -75,7 +75,7 @@ export default class Field extends Vue {
   private setCellKnown(cell: Cell) {
     this.initMines(cell);
 
-    if (this.finished) {
+    if (this.finished || cell.flagged) {
       return;
     }
 
