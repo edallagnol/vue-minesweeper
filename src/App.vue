@@ -2,6 +2,7 @@
   <div id="app">
     <div id="nav">
       <router-link to="/game">Game</router-link> |
+      <a href="https://en.wikipedia.org/wiki/Minesweeper_(video_game)" target="_blank">How to Play</a> |
       <router-link to="/about">About</router-link>
     </div>
     <router-view/>
@@ -32,17 +33,4 @@
 
 <style>
 @import url(https://cdnjs.cloudflare.com/ajax/libs/bulma/0.7.5/css/bulma.min.css);
-
-.button-warning {
-  background-color: rgb(223, 117, 20)
-}
-.button-error {
-    background: rgb(202, 60, 60);
-}
-.button-secondary {
-    background: rgb(66, 184, 221);
-}
-.button-success {
-    background: rgb(28, 184, 65);
-}
 </style>

@@ -11,7 +11,7 @@
           v-on:click="setCellKnown(cell)"
           v-on:click.right.prevent="setCellFlagged(cell)">
           <span v-if="cell.showNeighborHood()">
-            {{ cell.neighborHood }}
+            {{ cell.neighborhood }}
           </span>
         </td>
     </tr>
@@ -69,21 +69,18 @@ export default class Field extends Vue {
   }
 
   private updateMineNeighborhood(cell: Cell) {
-    this.neighborhood(cell).forEach((neighbor) => neighbor.neighborHood++);
+    this.neighborhood(cell).forEach((neighbor) => neighbor.neighborhood++);
   }
 
   private setCellKnown(cell: Cell) {
     this.initMines(cell);
+
     if (this.finished) {
       return;
     }
 
     if (cell.known) {
-      if (this.neighborhoodFlagCountMatches(cell)) {
-        this.neighborhood(cell)
-          .filter((neighbor) => !neighbor.known && !neighbor.flagged)
-          .forEach((neighbor) => this.setCellKnown(neighbor));
-      }
+      this.setNeighborhoodKnown(cell);
       return;
     }
 
@@ -93,11 +90,19 @@ export default class Field extends Vue {
       return;
     }
 
-    if (!cell.mine && cell.neighborHood === 0) {
+    if (!cell.mine && cell.neighborhood === 0) {
       this.neighborhood(cell)
         .filter((neighbor) => !neighbor.known)
         .forEach((neighbor) => this.setCellKnown(neighbor));
     }
+  }
+
+  private setNeighborhoodKnown(cell: Cell) {
+      if (this.neighborhoodFlagCountMatches(cell)) {
+        this.neighborhood(cell)
+          .filter((neighbor) => !neighbor.known && !neighbor.flagged)
+          .forEach((neighbor) => this.setCellKnown(neighbor));
+      }
   }
 
   private checkFinished(cellClicked: Cell): boolean {
@@ -134,7 +139,7 @@ export default class Field extends Vue {
   private neighborhoodFlagCountMatches(cell: Cell) {
     const flagCount = this.neighborhood(cell)
       .reduce((count, neighbor) => count + Number(neighbor.flagged), 0);
-    return flagCount === cell.neighborHood;
+    return flagCount === cell.neighborhood;
   }
 
   private setCellFlagged(cell: Cell) {

@@ -2,7 +2,7 @@ export class Cell {
     public mine = false;
     public known = false;
     public flagged = false;
-    public neighborHood = 0;
+    public neighborhood = 0;
 
     constructor(public x: number, public y: number) {}
 
@@ -15,6 +15,6 @@ export class Cell {
     }
 
     public showNeighborHood() {
-        return this.known && this.neighborHood && !this.mine;
+        return this.known && this.neighborhood && !this.mine;
     }
 }
